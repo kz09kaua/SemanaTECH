@@ -8,6 +8,7 @@ import {
   FaClock,
 } from 'react-icons/fa'
 import { useEffect, useRef, useState } from 'react'
+import { Link } from 'react-router-dom'
 
 const Hero = () => {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
@@ -26,7 +27,7 @@ const Hero = () => {
     'https://h2bplasticos.com.br/_next/image?url=%2Fimagens%2Flogo-h2b-removebg-preview.png&w=1080&q=75'
 
   // TEXTO
-  const IMAGE_CAPTION = "Resistência e durabilidade"
+  const IMAGE_CAPTION = "Onde tecnologia e sustentabilidade se encontram."
 
   // ============================================
 
@@ -69,7 +70,7 @@ const Hero = () => {
   // Estatísticas
   const stats = [
     { icon: FaRecycle, value: '50+', label: 'Toneladas recicladas/mês' },
-    { icon: FaTrophy, value: '15+', label: 'Anos de experiência' },
+    { icon: FaTrophy, value: '12+', label: 'Anos de experiência' },
     { icon: FaClock, value: '24/7', label: 'Suporte técnico' },
   ]
 
@@ -204,32 +205,28 @@ const Hero = () => {
               entregamos soluções personalizadas que unem durabilidade, segurança e inovação.
             </motion.p>
 
-            {/* Botões */}
+            {/* Botões - CORRIGIDOS COM LINKS */}
             <motion.div
               className="flex flex-wrap gap-4 pt-4"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 1.2, duration: 0.6 }}
             >
-              <motion.a
-                href="#contact"
+              <Link
+                to="/contato"
                 className="bg-cyan-300 hover:bg-cyan-200 text-[#001C30] font-semibold px-8 py-3 rounded-full flex items-center gap-2 transition-all duration-300 shadow-lg"
-                whileHover={{ scale: 1.05, y: -2 }}
-                whileTap={{ scale: 0.95 }}
               >
                 Solicitar Orçamento
                 <FaArrowRight />
-              </motion.a>
+              </Link>
 
-              <motion.a
-                href="#products"
+              <Link
+                to="/produtos"
                 className="border-2 border-cyan-300 hover:bg-cyan-300/20 text-white px-8 py-3 rounded-full flex items-center gap-2 transition-all duration-300"
-                whileHover={{ scale: 1.05, y: -2 }}
-                whileTap={{ scale: 0.95 }}
               >
                 Catálogo de Produtos
                 <FaPlay className="text-sm" />
-              </motion.a>
+              </Link>
             </motion.div>
 
             {/* Estatísticas */}
@@ -251,56 +248,49 @@ const Hero = () => {
             </motion.div>
           </motion.div>
 
-          {/* LOGO */}
-          <motion.div
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.8, duration: 0.8 }}
-            className="hidden lg:flex justify-center items-center"
-          >
-            <div className="relative bg-white/10 backdrop-blur-md rounded-3xl p-10 border border-cyan-300/30 shadow-2xl max-w-md w-full overflow-hidden">
-              {/* brilho */}
-              <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-cyan-300/10 to-transparent pointer-events-none" />
+         {/* LOGO */}
+{/* LOGO */}
+{/* LOGO */}
+<motion.div
+  initial={{ opacity: 0, x: 50 }}
+  animate={{ opacity: 1, x: 0 }}
+  transition={{ delay: 0.8, duration: 0.8 }}
+  className="hidden lg:flex justify-center items-center ml-24 xl:ml-60"
+>
+  <div className="relative bg-white/10 backdrop-blur-md rounded-3xl p-10 border border-cyan-300/30 shadow-2xl max-w-md w-full overflow-hidden">
+    
+    {/* brilho */}
+    <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-cyan-300/10 to-transparent pointer-events-none" />
 
-              {/* logo */}
-              <div className="flex justify-center relative z-10">
-                <img
-                  src={LOGO_IMAGE_URL}
-                  alt="Logo H2B"
-                  className="w-72 h-auto object-contain hover:scale-105 transition-transform duration-500 drop-shadow-2xl"
-                  onError={(e) => {
-                    e.target.onerror = null
-                    e.target.src = "https://placehold.co/400x200/0A4A6E/cyan?text=H2B"
-                  }}
-                />
-              </div>
+    {/* logo */}
+    <div className="flex justify-center relative z-10">
+      <img
+        src={LOGO_IMAGE_URL}
+        alt="Logo H2B"
+        className="w-80 h-auto object-contain hover:scale-105 transition-transform duration-500 drop-shadow-2xl"
+        onError={(e) => {
+          e.target.onerror = null
+          e.target.src =
+            'https://placehold.co/400x200/0A4A6E/cyan?text=H2B'
+        }}
+      />
+    </div>
 
-              {/* linha AZUL */}
-              <div className="w-20 h-[2px] bg-cyan-300 mx-auto my-6 rounded-full" />
+    {/* linha */}
+    <div className="w-20 h-[2px] bg-cyan-300 mx-auto my-6 rounded-full" />
 
-              {/* texto */}
-              <p className="text-center text-white text-lg font-semibold tracking-wide relative z-10">
-                {IMAGE_CAPTION}
-              </p>
+    {/* texto */}
+    <p className="text-center text-white text-lg font-semibold tracking-wide relative z-10">
+      {IMAGE_CAPTION}
+    </p>
 
-              {/* efeitos */}
-              <div className="absolute -top-10 -right-10 w-32 h-32 bg-cyan-300/20 rounded-full blur-3xl" />
-              <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-cyan-500/20 rounded-full blur-3xl" />
-            </div>
-          </motion.div>
+    {/* efeitos */}
+    <div className="absolute -top-10 -right-10 w-32 h-32 bg-cyan-300/20 rounded-full blur-3xl" />
+    <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-cyan-500/20 rounded-full blur-3xl" />
+  </div>
+</motion.div>
         </div>
       </div>
-
-      {/* Scroll */}
-      <motion.div
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10"
-        animate={{ y: [0, 10, 0] }}
-        transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
-      >
-        <a href="#about" className="text-cyan-300/70 hover:text-cyan-300 transition">
-          <FaChevronDown size={28} className="animate-bounce" />
-        </a>
-      </motion.div>
     </section>
   )
 }

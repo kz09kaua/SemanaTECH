@@ -9,7 +9,6 @@ import Services from './components/Services'
 import Differentials from './components/Differentials'
 import Sustainability from './components/Sustainability'
 import Testimonials from './components/Testimonials'
-import Clients from './components/Clients'
 import Blog from './components/Blog'
 import PostDetail from './components/PostDetail'
 import Contact from './components/Contact'
@@ -27,7 +26,6 @@ function App() {
           <Route path="/diferenciais" element={<Differentials />} />
           <Route path="/sustentabilidade" element={<Sustainability />} />
           <Route path="/depoimentos" element={<Testimonials />} />
-          <Route path="/clientes" element={<Clients />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/:slug" element={<PostDetail />} />
           <Route path="/contato" element={<Contact />} />

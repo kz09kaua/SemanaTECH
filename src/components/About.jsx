@@ -1,231 +1,467 @@
+import { useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
-import { FaRecycle, FaIndustry, FaLeaf, FaTrophy, FaChartLine, FaUsers, FaCheckCircle } from 'react-icons/fa'
-import { company } from '../data/content'
+import {
+  FaRecycle, FaIndustry, FaLeaf, FaTrophy,
+  FaChartLine, FaUsers, FaCheckCircle, FaMapMarkerAlt,
+  FaWater, FaBoxOpen, FaStar, FaHandsHelping
+} from 'react-icons/fa'
 import { Link } from 'react-router-dom'
+import { company } from '../data/content'
 
-const About = () => {
-  const stats = [
-    { icon: FaIndustry, value: company.employees, label: 'Funcionários', suffix: '+', color: 'cyan' },
-    { icon: FaUsers, value: company.clients, label: 'Clientes ativos', suffix: '+', color: 'cyan' },
-    { icon: FaRecycle, value: company.recycledMonthly, label: 'Toneladas recicladas/mês', suffix: 't', color: 'cyan' },
-    { icon: FaTrophy, value: new Date().getFullYear() - company.founded, label: 'Anos de experiência', suffix: '+', color: 'cyan' },
-  ]
+// ============================================
+// DADOS ATUALIZADOS DA EMPRESA
+// ============================================
 
-  const values = [
-    {
-      icon: FaLeaf,
-      title: 'Compromisso Ambiental',
-      description: 'Mais de 50 toneladas de plástico reciclado por mês, reduzindo resíduos e emitindo menos CO₂.',
-      color: 'cyan'
-    },
-    {
-      icon: FaChartLine,
-      title: 'Inovação Contínua',
-      description: 'Laboratório próprio e parcerias com universidades para desenvolver novas resinas e processos.',
-      color: 'cyan'
-    },
-    {
-      icon: FaUsers,
-      title: 'Relacionamento Transparente',
-      description: 'Atendimento próximo, consultoria técnica e soluções sob medida para cada cliente.',
-      color: 'cyan'
-    },
-  ]
+const STATS = [
+  { icon: FaIndustry,  value: company.employees,      label: 'Funcionários',             suffix: '+' },
+  { icon: FaUsers,     value: company.clients,        label: 'Clientes ativos',          suffix: '+' },
+  { icon: FaRecycle,   value: company.recycledMonthly, label: 'Toneladas recicladas/mês', suffix: 't' },
+  { icon: FaTrophy,    value: new Date().getFullYear() - company.founded,
+                                                        label: 'Anos de experiência',      suffix: '+' },
+]
 
+const VALUES = [
+  {
+    icon: FaLeaf,
+    title: 'Compromisso Ambiental',
+    description: 'Mais de 50 toneladas de plástico reciclado por mês, reduzindo resíduos e emitindo menos CO₂.',
+  },
+  {
+    icon: FaChartLine,
+    title: 'Inovação Contínua',
+    description: 'Laboratório próprio e parcerias com universidades para desenvolver novas resinas e processos.',
+  },
+  {
+    icon: FaUsers,
+    title: 'Relacionamento Transparente',
+    description: 'Atendimento próximo, consultoria técnica e soluções sob medida para cada cliente.',
+  },
+]
+
+const PRODUCT_SPECIALTIES = [
+  {
+    icon: FaWater,
+    title: 'Garrafões de Água Mineral',
+    description: 'Produção de garrafões de alta resistência e durabilidade para o setor de água mineral.',
+    highlight: 'Referência nacional'
+  },
+  {
+    icon: FaBoxOpen,
+    title: 'Tampas para Garrafões',
+    description: 'Tampas com vedação perfeita e segurança para garrafões e produtos lácteos.',
+    highlight: 'Alta qualidade'
+  },
+  {
+    icon: FaIndustry,
+    title: 'Embalagens Plásticas',
+    description: 'Soluções personalizadas para os mais diversos segmentos industriais.',
+    highlight: 'Sob medida'
+  }
+]
+
+const TIMELINE = [
+  { year: '2014', label: 'Fundação da H2B em Muriaé-MG', achieved: true },
+  { year: '2016', label: 'Início da produção de garrafões', achieved: true },
+  { year: '2018', label: 'Expansão para tampas e lácteos', achieved: true },
+  { year: '2020', label: 'Certificação ISO 9001', achieved: true },
+  { year: '2023', label: 'Reconhecimento nacional', achieved: true },
+  { year: '2026', label: 'Meta de expansão e inovação', achieved: false },
+]
+
+const CHECKS = ['Certificação ISO 9001', 'Selo Verde', 'Destaque Nacional', '+50t recicladas/mês']
+
+// ============================================
+// ANIMAÇÕES
+// ============================================
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 30 },
+  show: { opacity: 1, y: 0 },
+}
+
+const fadeIn = {
+  hidden: { opacity: 0 },
+  show: { opacity: 1 },
+}
+
+const stagger = (delayChildren = 0.1) => ({
+  hidden: {},
+  show: { transition: { staggerChildren: delayChildren } },
+})
+
+const scaleIn = {
+  hidden: { scale: 0.8, opacity: 0, y: 30 },
+  show: { scale: 1, opacity: 1, y: 0,
+          transition: { type: 'spring', stiffness: 200 } },
+}
+
+// ============================================
+// COMPONENTES
+// ============================================
+
+function useCountUp(target, duration = 1500) {
+  const ref = useRef(null)
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    let start = null
+    const step = (ts) => {
+      if (!start) start = ts
+      const progress = Math.min((ts - start) / duration, 1)
+      el.textContent = Math.floor(progress * target)
+      if (progress < 1) requestAnimationFrame(step)
+      else el.textContent = target
+    }
+    requestAnimationFrame(step)
+  }, [target, duration])
+  return ref
+}
+
+function StatCard({ icon: Icon, value, label, suffix }) {
+  const numRef = useCountUp(value)
   return (
-    <section className="pt-32 pb-20 bg-white overflow-hidden">
-      <div className="container mx-auto px-6">
-        {/* Cabeçalho */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="text-center max-w-3xl mx-auto mb-16"
-        >
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
-            className="inline-block mb-4"
-          >
-            <span className="bg-cyan-100 text-cyan-700 text-sm font-semibold px-4 py-1 rounded-full">Sobre nós</span>
-          </motion.div>
-          <h1 className="text-4xl md:text-5xl font-bold text-[#001C30] mb-4">Sobre a <span className="text-cyan-500">H2B Plásticos</span></h1>
-          <div className="w-24 h-1 bg-cyan-400 mx-auto mb-6 rounded-full"></div>
-          <p className="text-gray-600 text-lg max-w-2xl mx-auto">
-            Inovação, resistência e sustentabilidade em cada grânulo – há mais de 15 anos transformando a indústria plástica brasileira.
-          </p>
-        </motion.div>
+    <motion.div
+      variants={scaleIn}
+      whileHover={{ y: -5 }}
+      className="bg-gradient-to-br from-gray-50 to-gray-100 p-6 rounded-2xl text-center
+                 shadow-md hover:shadow-xl transition-all duration-300 border border-cyan-100"
+    >
+      <div className="bg-cyan-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+        <Icon className="text-3xl text-cyan-600" aria-hidden="true" />
+      </div>
+      <div className="text-3xl font-bold text-[#001C30]">
+        <span ref={numRef}>0</span>{suffix}
+      </div>
+      <p className="text-gray-500 text-sm mt-2">{label}</p>
+    </motion.div>
+  )
+}
 
-        {/* Conteúdo principal: texto + imagem */}
-        <div className="grid md:grid-cols-2 gap-12 items-center mb-20">
-          <motion.div
-            initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.7, delay: 0.2 }}
-          >
-            <h2 className="text-2xl font-bold text-[#001C30] mb-4 relative inline-block">
-              Nossa História
-              <span className="absolute -bottom-2 left-0 w-12 h-1 bg-cyan-400 rounded-full"></span>
-            </h2>
-            <p className="text-gray-600 leading-relaxed mb-4 mt-4">
-              Fundada em <span className="font-semibold text-cyan-600">{company.founded}</span>, a H2B Plásticos nasceu com um propósito claro: oferecer soluções plásticas de alta performance sem abrir mão da responsabilidade ambiental. Desde o início, investimos em tecnologia de ponta e capacitação de equipe, tornando-nos referência nacional na produção de filmes plásticos, sacos industriais e embalagens personalizadas.
-            </p>
-            <p className="text-gray-600 leading-relaxed">
-              Hoje, atendemos os setores alimentício, construção civil, logística e agrícola, sempre com foco na redução de impacto ambiental e na inovação contínua. Nossa missão é superar as expectativas de desempenho, durabilidade e segurança de nossos clientes, contribuindo ativamente para a economia circular.
-            </p>
-            <div className="flex gap-4 mt-6">
-              <div className="flex items-center gap-2">
-                <FaCheckCircle className="text-cyan-500" />
-                <span className="text-sm text-gray-600">Certificação ISO 9001</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <FaCheckCircle className="text-cyan-500" />
-                <span className="text-sm text-gray-600">Selo Verde</span>
-              </div>
-            </div>
-          </motion.div>
+function ValueCard({ icon: Icon, title, description }) {
+  return (
+    <motion.div
+      variants={fadeUp}
+      whileHover={{ y: -8 }}
+      className="bg-white p-8 rounded-2xl text-center shadow-lg border border-gray-100
+                 hover:shadow-2xl transition-all duration-300 group"
+    >
+      <div className="bg-gradient-to-br from-cyan-400 to-cyan-600 w-20 h-20 rounded-2xl
+                      flex items-center justify-center mx-auto mb-5 shadow-lg
+                      group-hover:scale-110 transition-transform duration-300">
+        <Icon className="text-3xl text-white" aria-hidden="true" />
+      </div>
+      <h4 className="text-xl font-bold text-[#001C30] mb-3">{title}</h4>
+      <p className="text-gray-600 leading-relaxed">{description}</p>
+    </motion.div>
+  )
+}
 
-          <motion.div
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.7, delay: 0.4 }}
-            className="relative"
-          >
-            <div className="absolute -top-4 -left-4 w-32 h-32 bg-cyan-400/20 rounded-full blur-3xl"></div>
-            <div className="absolute -bottom-4 -right-4 w-32 h-32 bg-cyan-400/20 rounded-full blur-3xl"></div>
-            <div className="relative bg-gradient-to-br from-[#001C30] to-[#0A4A6E] rounded-2xl overflow-hidden shadow-2xl">
-              <img
-                src="https://placehold.co/800x500/0A4A6E/cyan?text=Fábrica+H2B"
-                alt="Fábrica H2B Plásticos"
-                className="w-full h-auto object-cover hover:scale-105 transition-transform duration-700"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#001C30]/80 to-transparent flex items-end p-6">
-                <p className="text-white font-semibold text-lg">Tecnologia e sustentabilidade lado a lado</p>
-              </div>
-            </div>
-          </motion.div>
+function ProductCard({ icon: Icon, title, description, highlight }) {
+  return (
+    <motion.div
+      variants={fadeUp}
+      whileHover={{ y: -8 }}
+      className="bg-gradient-to-br from-cyan-50 to-white p-6 rounded-2xl text-center
+                 shadow-md hover:shadow-xl transition-all duration-300 border border-cyan-100
+                 relative overflow-hidden group"
+    >
+      <div className="absolute top-0 right-0 w-20 h-20 bg-cyan-400/5 rounded-full blur-2xl
+                      group-hover:bg-cyan-400/10 transition-all" />
+      <div className="bg-white w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4
+                      shadow-md border border-cyan-100 group-hover:scale-110 transition-transform">
+        <Icon className="text-2xl text-cyan-600" aria-hidden="true" />
+      </div>
+      <h3 className="text-lg font-bold text-[#001C30] mb-2">{title}</h3>
+      <p className="text-gray-500 text-sm mb-3">{description}</p>
+      <span className="inline-block bg-cyan-100 text-cyan-700 text-xs font-semibold 
+                       px-3 py-1 rounded-full">
+        {highlight}
+      </span>
+    </motion.div>
+  )
+}
+
+function TimelineItem({ year, label, achieved, isLast }) {
+  return (
+    <div className={`relative ${!isLast ? 'pb-8' : ''}`}>
+      {/* Linha conectora */}
+      {!isLast && (
+        <div className="absolute left-5 top-10 w-0.5 h-full bg-cyan-400/40" />
+      )}
+      <div className="flex gap-4">
+        <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 shadow-lg
+                        ${achieved ? 'bg-cyan-400' : 'bg-cyan-600/50 border border-cyan-400/30'}`}>
+          {achieved ? (
+            <FaCheckCircle className="text-[#001C30] text-sm" />
+          ) : (
+            <FaStar className="text-cyan-200 text-sm" />
+          )}
         </div>
+        <div className="flex-1">
+          <div className={`font-bold text-lg ${achieved ? 'text-cyan-300' : 'text-cyan-400'}`}>
+            {year}
+          </div>
+          <p className={`text-sm ${achieved ? 'text-gray-200' : 'text-gray-300'}`}>
+            {label}
+          </p>
+        </div>
+      </div>
+    </div>
+  )
+}
 
-        {/* Cards de estatísticas animados */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="mb-20"
+function CheckBadge({ label }) {
+  return (
+    <div className="flex items-center gap-2 bg-cyan-50/50 px-3 py-2 rounded-full border border-cyan-100">
+      <FaCheckCircle className="text-cyan-500 shrink-0 text-sm" aria-hidden="true" />
+      <span className="text-sm text-gray-600">{label}</span>
+    </div>
+  )
+}
+
+// ============================================
+// COMPONENTE PRINCIPAL
+// ============================================
+
+const About = () => (
+  <section
+    className="pt-32 pb-20 bg-white overflow-hidden"
+    aria-label="Sobre a H2B Plásticos"
+  >
+    <div className="container mx-auto px-6">
+
+      {/* ========== CABEÇALHO ========== */}
+      <motion.div
+        variants={fadeUp}
+        initial="hidden"
+        animate="show"
+        transition={{ duration: 0.6 }}
+        className="text-center max-w-3xl mx-auto mb-16"
+      >
+        <motion.span
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
+          className="inline-block bg-cyan-100 text-cyan-700 text-sm font-semibold
+                     px-4 py-1 rounded-full mb-4"
         >
-          <h3 className="text-2xl font-bold text-center text-[#001C30] mb-8">
-            Números que comprovam nossa <span className="text-cyan-500">excelência</span>
+          Sobre nós
+        </motion.span>
+
+        <h1 className="text-4xl md:text-5xl font-bold text-[#001C30] mb-4">
+          Sobre a <span className="text-cyan-500">H2B Plásticos</span>
+        </h1>
+        <div className="w-24 h-1 bg-cyan-400 mx-auto mb-6 rounded-full" />
+        <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+          Uma indústria de destaque nacional sediada em Muriaé (MG), especialista na fabricação 
+          de embalagens plásticas de alta qualidade.
+        </p>
+      </motion.div>
+
+      {/* ========== NOSSA HISTÓRIA ========== */}
+      <div className="grid md:grid-cols-2 gap-12 items-center mb-20">
+        <motion.div
+          variants={fadeUp}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true }}
+          transition={{ duration: 0.7 }}
+        >
+          <div className="flex items-center gap-2 mb-4">
+            <FaMapMarkerAlt className="text-cyan-500 text-xl" />
+            <span className="text-cyan-600 font-semibold">Muriaé - MG</span>
+          </div>
+          <h2 className="text-2xl font-bold text-[#001C30] mb-4 relative inline-block">
+            Nossa História
+            <span className="absolute -bottom-2 left-0 w-12 h-1 bg-cyan-400 rounded-full" />
+          </h2>
+          <p className="text-gray-600 leading-relaxed mb-4 mt-4">
+            Fundada em <span className="font-semibold text-cyan-600">2014</span>, a H2B Plásticos nasceu 
+            em Muriaé (MG) com um propósito claro: oferecer soluções plásticas de alta performance 
+            sem abrir mão da responsabilidade ambiental.
+          </p>
+          <p className="text-gray-600 leading-relaxed mb-4">
+            Desde o início, nos especializamos na fabricação de <span className="font-semibold">garrafões de água mineral</span>, 
+            <span className="font-semibold"> tampas para garrafões</span> e embalagens para 
+            <span className="font-semibold"> produtos lácteos</span>, tornando-nos referência nacional 
+            nesses segmentos.
+          </p>
+          <p className="text-gray-600 leading-relaxed">
+            Hoje, com tecnologia de ponta e compromisso com a economia circular, atendemos os 
+            setores de água mineral, lácteos, alimentício, construção civil e logística, sempre 
+            superando as expectativas de nossos clientes.
+          </p>
+          <div className="flex flex-wrap gap-3 mt-6">
+            {CHECKS.map((label) => <CheckBadge key={label} label={label} />)}
+          </div>
+        </motion.div>
+
+        <motion.div
+          variants={fadeUp}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true }}
+          transition={{ duration: 0.7, delay: 0.2 }}
+          className="relative"
+        >
+          <div className="absolute -top-4 -left-4 w-32 h-32 bg-cyan-400/20 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute -bottom-4 -right-4 w-32 h-32 bg-cyan-400/20 rounded-full blur-3xl pointer-events-none" />
+          <div className="relative bg-gradient-to-br from-[#001C30] to-[#0A4A6E] rounded-2xl overflow-hidden shadow-2xl">
+            <img
+              src="https://static.blocks-cms.com/h2bplasticos/upload/slide/6d7e083fa5224d66bd26394de530be51.png"
+              alt="Fábrica H2B Plásticos em Muriaé - MG"
+              loading="lazy"
+              className="w-full h-auto object-cover hover:scale-105 transition-transform duration-700"
+            />
+          </div>
+          {/* Selo de destaque */}
+          <div className="absolute -bottom-4 -left-4 bg-cyan-500 rounded-full p-3 shadow-lg">
+            <FaTrophy className="text-white text-xl" />
+          </div>
+        </motion.div>
+      </div>
+
+      {/* ========== ESPECIALIDADES ========== */}
+      <motion.div
+        variants={fadeIn}
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true }}
+        className="mb-20"
+      >
+        <motion.h3
+          variants={fadeUp}
+          className="text-2xl font-bold text-center text-[#001C30] mb-4"
+        >
+          Nossas <span className="text-cyan-500">Especialidades</span>
+        </motion.h3>
+        <motion.p
+          variants={fadeUp}
+          className="text-center text-gray-600 mb-10 max-w-2xl mx-auto"
+        >
+          Com foco nos segmentos de água mineral e produtos lácteos, entregamos soluções 
+          personalizadas de alta qualidade.
+        </motion.p>
+        <motion.div
+          variants={stagger(0.1)}
+          className="grid md:grid-cols-3 gap-6"
+        >
+          {PRODUCT_SPECIALTIES.map((product, idx) => (
+            <ProductCard key={idx} {...product} />
+          ))}
+        </motion.div>
+      </motion.div>
+
+      {/* ========== ESTATÍSTICAS ========== */}
+      <section aria-label="Estatísticas da empresa" className="mb-20">
+        <motion.h3
+          variants={fadeUp}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true }}
+          className="text-2xl font-bold text-center text-[#001C30] mb-8"
+        >
+          Números que comprovam nossa{' '}
+          <span className="text-cyan-500">excelência</span>
+        </motion.h3>
+        <motion.div
+          variants={stagger()}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true }}
+          className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6"
+        >
+          {STATS.map((stat) => (
+            <StatCard key={stat.label} {...stat} />
+          ))}
+        </motion.div>
+      </section>
+
+      {/* ========== VALORES ========== */}
+      <section aria-label="Valores e compromissos" className="mb-20">
+        <motion.h3
+          variants={fadeUp}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true }}
+          className="text-2xl font-bold text-center text-[#001C30] mb-12"
+        >
+          Nossos <span className="text-cyan-500">Valores</span> e Compromissos
+        </motion.h3>
+        <motion.div
+          variants={stagger(0.1)}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true }}
+          className="grid md:grid-cols-3 gap-8"
+        >
+          {VALUES.map((v) => <ValueCard key={v.title} {...v} />)}
+        </motion.div>
+      </section>
+
+      {/* ========== LINHA DO TEMPO ========== */}
+      <motion.div
+        variants={fadeUp}
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true }}
+        transition={{ duration: 0.6 }}
+        className="bg-gradient-to-r from-[#001C30] to-[#0A4A6E] rounded-2xl p-8 md:p-12 mb-16"
+        aria-label="Linha do tempo da empresa"
+      >
+        <h3 className="text-2xl font-bold text-center text-white mb-8">
+          Nossa <span className="text-cyan-300">Jornada</span>
+        </h3>
+        <div className="max-w-2xl mx-auto">
+          {TIMELINE.map((item, idx) => (
+            <TimelineItem 
+              key={idx} 
+              {...item} 
+              isLast={idx === TIMELINE.length - 1} 
+            />
+          ))}
+        </div>
+      </motion.div>
+
+      {/* ========== CTA ========== */}
+      <motion.div
+        variants={fadeUp}
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true }}
+        className="text-center"
+      >
+        <div className="bg-gradient-to-r from-cyan-50 to-white rounded-2xl p-8 md:p-12">
+          <FaHandsHelping className="text-5xl text-cyan-500 mx-auto mb-4" />
+          <h3 className="text-2xl font-bold text-[#001C30] mb-4">
+            Pronto para transformar sua embalagem?
           </h3>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {stats.map((stat, idx) => (
-              <motion.div
-                key={idx}
-                initial={{ scale: 0.8, opacity: 0, y: 30 }}
-                whileInView={{ scale: 1, opacity: 1, y: 0 }}
-                transition={{ delay: idx * 0.1, type: 'spring', stiffness: 200 }}
-                viewport={{ once: true }}
-                whileHover={{ y: -5 }}
-                className="bg-gradient-to-br from-gray-50 to-gray-100 p-6 rounded-2xl text-center shadow-md hover:shadow-xl transition-all duration-300 border border-cyan-100"
-              >
-                <div className="bg-cyan-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <stat.icon className="text-3xl text-cyan-600" />
-                </div>
-                <div className="text-3xl font-bold text-[#001C30]">
-                  {stat.value}{stat.suffix}
-                </div>
-                <p className="text-gray-500 text-sm mt-2">{stat.label}</p>
-              </motion.div>
-            ))}
-          </div>
-        </motion.div>
-
-        {/* Valores e compromissos */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          className="mb-20"
-        >
-          <h3 className="text-2xl font-bold text-center text-[#001C30] mb-12">
-            Nossos <span className="text-cyan-500">Valores</span> e Compromissos
-          </h3>
-          <div className="grid md:grid-cols-3 gap-8">
-            {values.map((value, idx) => (
-              <motion.div
-                key={idx}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: idx * 0.1 }}
-                viewport={{ once: true }}
-                whileHover={{ y: -8 }}
-                className="bg-white p-8 rounded-2xl text-center shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300"
-              >
-                <div className="bg-gradient-to-br from-cyan-400 to-cyan-600 w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-5 shadow-lg">
-                  <value.icon className="text-3xl text-white" />
-                </div>
-                <h4 className="text-xl font-bold text-[#001C30] mb-3">{value.title}</h4>
-                <p className="text-gray-600 leading-relaxed">{value.description}</p>
-              </motion.div>
-            ))}
-          </div>
-        </motion.div>
-
-        {/* Linha do tempo / Diferenciais */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="bg-gradient-to-r from-[#001C30] to-[#0A4A6E] rounded-2xl p-8 md:p-12 mb-16"
-        >
-          <div className="grid md:grid-cols-4 gap-6 text-center">
-            <div>
-              <div className="text-3xl font-bold text-cyan-300">2008</div>
-              <p className="text-white/70 text-sm mt-2">Fundação da empresa</p>
-            </div>
-            <div>
-              <div className="text-3xl font-bold text-cyan-300">2015</div>
-              <p className="text-white/70 text-sm mt-2">Certificação ISO 9001</p>
-            </div>
-            <div>
-              <div className="text-3xl font-bold text-cyan-300">2020</div>
-              <p className="text-white/70 text-sm mt-2">Expansão nacional</p>
-            </div>
-            <div>
-              <div className="text-3xl font-bold text-cyan-300">2025</div>
-              <p className="text-white/70 text-sm mt-2">Meta de 100% reciclagem</p>
-            </div>
-          </div>
-        </motion.div>
-
-        {/* Chamada para ação */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-center"
-        >
-          <h3 className="text-2xl font-bold text-[#001C30] mb-4">Pronto para transformar sua embalagem?</h3>
-          <p className="text-gray-600 mb-6">Solicite uma cotação ou agende uma visita à nossa fábrica.</p>
+          <p className="text-gray-600 mb-6 max-w-xl mx-auto">
+          Solicite uma cotação ou agende uma visita à nossa fábrica em Muriaé - MG.
+          </p>
           <div className="flex flex-wrap justify-center gap-4">
             <Link
               to="/contato"
-              className="bg-cyan-500 hover:bg-cyan-600 text-white font-semibold px-8 py-3 rounded-full transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-1"
+              className="bg-cyan-500 hover:bg-cyan-600 text-white font-semibold px-8 py-3
+                         rounded-full transition-all duration-300 shadow-lg hover:shadow-xl
+                         hover:-translate-y-1"
             >
               Fale com um especialista
             </Link>
             <Link
               to="/produtos"
-              className="border-2 border-[#001C30] text-[#001C30] hover:bg-[#001C30] hover:text-white px-8 py-3 rounded-full transition-all duration-300 hover:-translate-y-1"
+              className="border-2 border-[#001C30] text-[#001C30] hover:bg-[#001C30]
+                         hover:text-white px-8 py-3 rounded-full transition-all duration-300
+                         hover:-translate-y-1"
             >
-              Conheça os produtos
+              Conheça nossos produtos
             </Link>
           </div>
-        </motion.div>
-      </div>
-    </section>
-  )
-}
+        </div>
+      </motion.div>
+
+    </div>
+  </section>
+)
 
 export default About
